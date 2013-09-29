@@ -1,0 +1,153 @@
+#!/usr/bin/python
+
+__author__ = """
+04.
+NAME: Abhijeet Rastogi (shadyabhi)
+Profile: http://www.google.com/profiles/abhijeet.1989
+"""
+
+import cookielib
+import urllib2
+from getpass import getpass
+import sys
+from urllib import urlencode
+from getopt import getopt
+
+username = None
+passwd = None
+17.
+message = None
+18.
+number = None
+19.
+ 
+20.
+def Usage():
+21.
+print '\t-h, --help:  View help'
+22.
+print '\t-u, --username: Username'
+23.
+print '\t-p, --password: Password'
+24.
+print '\t-n, --number: numbber to send the sms'
+25.
+print '\t-m, --message: Message to send'
+26.
+sys.exit(1)
+27.
+ 
+28.
+ 
+29.
+opts, args = getopt(sys.argv[1:], 'u:p:m:n:h',["username=","password=","message=","number=","help"])
+30.
+ 
+31.
+for o,v in opts:
+32.
+if o in ("-h", "--help"):
+33.
+Usage()
+34.
+elif o in ("-u", "--username"):
+35.
+username = v
+36.
+ask_username = False
+37.
+elif o in ("-p", "--password"):
+38.
+passwd = v
+39.
+ask_password = False
+40.
+elif o in ("-m", "--message"):
+41.
+message = v
+42.
+ask_message = False
+43.
+elif o in ("-n", "--number"):
+44.
+number = v
+45.
+ask_number = False
+46.
+ 
+47.
+#Credentials taken here
+48.
+if username is None: username = raw_input("Enter USERNAME: ")
+49.
+if passwd is None: passwd = getpass()
+50.
+if message is None: message = raw_input("Enter Message: ")
+51.
+if number is None: number = raw_input("Enter Mobile number: ")
+52.
+ 
+53.
+#Logging into the SMS Site
+54.
+url = 'http://wwwb.way2sms.com//auth.cl'
+55.
+data = 'username='+username+'&password='+passwd+'&Submit=Sign+in'
+56.
+ 
+57.
+#Remember, Cookies are to be handled
+58.
+cj = cookielib.CookieJar()
+59.
+opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
+60.
+ 
+61.
+# To fool way2sms as if a Web browser is visiting the site
+62.
+opener.addheaders = [('User-Agent','Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.1.3) Gecko/20091020 Ubuntu/9.10 (karmic) Firefox/3.5.3 GTB7.0')]
+63.
+try:
+64.
+usock = opener.open(url, data)
+65.
+except IOError:
+66.
+print "Check your internet connection"
+67.
+sys.exit(1)
+68.
+ 
+69.
+#urlencode performed.. Because it was done by the site as i checked through HTTP headers
+70.
+ 
+71.
+message = urlencode({'message':message})
+72.
+message = message[message.find("=")+1:]
+73.
+ 
+74.
+#SMS sending
+75.
+send_sms_url = 'http://wwwb.way2sms.com//FirstServletsms?custid='
+76.
+send_sms_data = 'custid=undefined&HiddenAction=instantsms&Action=custfrom950000&login=&pass=&MobNo='+number+'&textArea='+message
+77.
+opener.addheaders = [('Referer','http://wwwb.way2sms.com//jsp/InstantSMS.jsp?val=0')]
+78.
+ 
+79.
+try:
+80.
+sms_sent_page = opener.open(send_sms_url,send_sms_data)
+81.
+except IOError:
+82.
+print "Check your internet connection( while sending sms)"
+83.
+sys.exit(1)
+84.
+print "SMS sent!!!"
